@@ -28,12 +28,8 @@ Sub ProductionPlan_1()
     
     Cells(3, 6) = "# of machines"
     
-    'Set Range for sorting
-    Set R = Range(Cells(4, 1), Cells(3 + n, 6))
     
-    'Sort in ascending order according to number of machines item can be produces on
-    R.Sort Key1:=Range("F3"), Order1:=xlAscending, Header:=xlNo
-    
+    'Copy info about setup time and unit time
     Cells(3, 7) = Sheets(5).Cells(3, 2)
     Cells(3, 8) = Sheets(5).Cells(3, 3)
     
@@ -45,6 +41,16 @@ Sub ProductionPlan_1()
             End If
         Next
     Next
-
+    
+    'Prepare sorting
+    Cells(2, 2).Clear
+    
+    'Set Range for sorting
+    Set R = Range("A3").CurrentRegion
+    
+    'Sort primarily in ascending order according to machines _
+    and secondarily in descending order according to unit time
+    R.Sort Key1:=Range("F4"), Order1:=xlAscending, Header:=xlYes, _
+    Key2:=Range("H4"), Order2:=xlDescending, Header:=xlYes
     
 End Sub
