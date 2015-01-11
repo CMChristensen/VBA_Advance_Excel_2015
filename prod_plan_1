@@ -1,21 +1,50 @@
 Sub ProductionPlan_1()
-    Dim dir As String
     Dim w As Workbook
+    Dim machines As Worksheet
+    Dim items As Worksheet
     Dim item() As String
+    Dim R As Range
     Dim i As Integer
+    Dim j As Integer
+    Dim k As Integer
+    Dim l As Integer
     Dim n As Integer
+    
+    Set w = Workbooks("Problem1.xlsm")
+    Set machines = w.Worksheets("Machines")
+    Set items = w.Worksheets("Items")
+    
+    'Set active worksheet
+    machines.Activate
         
-    n = ThisWorkbook.Worksheets("Machines").Cells(Rows.Count, "A").End(xlUp).Row - 3
+    'count the number of items
+    n = Cells(Rows.Count, "A").End(xlUp).Row - 3
     
-    ReDim item(n)
-    
+    'count the number of machines each item can be produced on
     For i = 1 To n
-        item(i) = ThisWorkbook.Worksheets("Machines").Cells(i + 3, 1)
-    Next
-    
-    For i = 1 To n
-        ThisWorkbook.Worksheets("Machines").Cells(i + 3, 6) = _
+        Cells(i + 3, 6) = _
         Application.WorksheetFunction.Sum(Range(Cells(i + 3, 2), Cells(i + 3, 5)))
     Next
+    
+    Cells(3, 6) = "# of machines"
+    
+    'Set Range for sorting
+    Set R = Range(Cells(4, 1), Cells(3 + n, 6))
+    
+    'Sort in ascending order according to number of machines item can be produces on
+    R.Sort Key1:=Range("F3"), Order1:=xlAscending, Header:=xlNo
+    
+    Cells(3, 7) = Sheets(5).Cells(3, 2)
+    Cells(3, 8) = Sheets(5).Cells(3, 3)
+    
+    For k = 1 To n
+        For l = 1 To n
+            If Cells(k + 3, 1) = Sheets(5).Cells(l + 3, 1) Then
+                Cells(k + 3, 7) = Sheets(5).Cells(l + 3, 2).Value
+                Cells(k + 3, 8) = Sheets(5).Cells(l + 3, 3).Value
+            End If
+        Next
+    Next
+
     
 End Sub
