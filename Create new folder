@@ -1,0 +1,12 @@
+Sub CreateOrderFolder()
+    Dim sys As FileSystemObject
+    Dim F As Folder
+    Dim A As Folder
+    
+    Set sys = New FileSystemObject
+    Set F = sys.GetFolder(ThisWorkbook.Path)
+    
+    If Not sys.FolderExists(F & "\Orders_1") Then
+        Set A = sys.CreateFolder(F & "\Orders_1")
+    End If
+End Sub
