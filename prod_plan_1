@@ -1,0 +1,21 @@
+Sub ProductionPlan_1()
+    Dim dir As String
+    Dim w As Workbook
+    Dim item() As String
+    Dim i As Integer
+    Dim n As Integer
+        
+    n = ThisWorkbook.Worksheets("Machines").Cells(Rows.Count, "A").End(xlUp).Row - 3
+    
+    ReDim item(n)
+    
+    For i = 1 To n
+        item(i) = ThisWorkbook.Worksheets("Machines").Cells(i + 3, 1)
+    Next
+    
+    For i = 1 To n
+        ThisWorkbook.Worksheets("Machines").Cells(i + 3, 6) = _
+        Application.WorksheetFunction.Sum(Range(Cells(i + 3, 2), Cells(i + 3, 5)))
+    Next
+    
+End Sub
