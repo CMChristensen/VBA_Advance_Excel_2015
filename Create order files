@@ -1,0 +1,45 @@
+Sub CreateOrders()
+    Dim W As Workbook
+    Dim W2 As Workbook
+    Dim A() As String
+    Dim i As Integer
+    Dim j As Integer
+    Dim k As Integer
+    Dim n As Integer
+    Dim r As Long 'number of items
+    
+    Set W2 = Workbooks("Problem1.xlsm")
+    
+    ReDim A(17)
+    
+    For i = 1 To 17
+        A(i) = W2.Worksheets("Items").Cells(i + 3, 1)
+    Next
+    
+    n = InputBox("Please enter the number of orders:")
+    
+    Application.DisplayAlerts = False
+    
+    Randomize
+    
+    For i = 1 To n
+    
+        Set W = Workbooks.Add
+        
+        For j = 2 To W.Worksheets.Count
+            W.Worksheets(2).Delete
+        Next
+    
+        W.Worksheets(1).Name = "Order"
+        W.Worksheets(1).Cells(1, 1) = "Order"
+        W.Worksheets(1).Cells(1, 2) = i
+        W.Worksheets(1).Cells(3, 1) = A(Int(17 * Rnd()) + 1)
+        W.Worksheets(1).Cells(3, 3) = WorksheetFunction.RandBetween(2, 8)
+    
+        W.SaveAs Filename:=ThisWorkbook.Path & "\Orders_1\Order" & i & ".xlsx"
+        W.Close
+    Next
+    
+    Application.DisplayAlerts = True
+    
+End Sub
