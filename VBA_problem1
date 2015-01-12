@@ -1,14 +1,14 @@
 Option Explicit
 Option Base 1
 
-Sub Demand() 'generate demand schedule
+Sub Demand(ByVal k As Integer) 'generate demand schedule
 Dim w As Worksheet
 Dim i As Integer
-Dim k As Integer
+'Dim k As Integer
 Dim DemandP() As Integer
 Dim DemandQ() As Integer
 
-k = InputBox("How many weeks should production be planned for?", "Number of weeks", 500)
+'k = InputBox("How many weeks should production be planned for?", "Number of weeks", 500)
 
 ReDim DemandP(k) 'redimension demand arrays to fit the number of weeks, k
 ReDim DemandQ(k)
@@ -18,6 +18,8 @@ For i = 1 To k 'populate the arrays with randomly generated demand
     DemandQ(i) = Int(WorksheetFunction.NormInv(Rnd(), 180, 20))
 Next
 
+'Cells(12, 1) = DemandP(25)
+
 'Set w = ThisWorkbook.Worksheets.Add
 'w.Name = "Demand"
 
@@ -25,7 +27,7 @@ End Sub
 
 
 Sub Assembly()
-    Dim I_X As Long 'WIP inventory of X --- Get these as ByRef attributes from production sub???
+    Dim I_X As Long 'WIP inventory of X --- Get these as ByRef attributes from main sub???
     Dim I_Y As Long
     Dim I_Z As Long
     Dim I_P As Long 'Finished inventory of Pois
@@ -37,7 +39,7 @@ Sub Assembly()
     Dim CurrentProduct As Integer 'initially 0, then 1=Pois and 2=Qads
     Dim SetupTime(2) As Integer
     Dim UnitTime(2) As Integer
-    Dim AvailableTime As Integer
+    Dim AvailableTime As Integer 'Get as ByRef attribute from main sub ?
     
     I_X = 600
     I_Y = 500
@@ -62,7 +64,7 @@ Sub Assembly()
     Do While AvailableTime >= ((bSizeP * UnitTime(1)) + SetupTime(1)) _
     Or AvailableTime >= ((bSizeQ * UnitTime(2)) + SetupTime(2))
         If (CurrentProduct = 0 Or CurrentProduct = 2) _
-        And ((I_X >= (5 * bSizeP)) And (I_Y >= (2 * bSizeP)) And (I_Z >= bSizeP)) Then 
+        And ((I_X >= (5 * bSizeP)) And (I_Y >= (2 * bSizeP)) And (I_Z >= bSizeP)) Then 'AvailableTime > ((BatchSizePois * UnitTime(1)) + SetupTime(1)) Then
             CurrentProduct = 1
             nBatchP = nBatchP + 1
             I_P = I_P + bSizeP
@@ -70,7 +72,7 @@ Sub Assembly()
             I_Y = I_Y - (2 * bSizeP)
             I_Z = I_Z - bSizeP
             AvailableTime = AvailableTime - ((bSizeP * UnitTime(1)) + SetupTime(1))
-        ElseIf CurrentProduct = 1 And ((I_X >= (3 * bSizeQ)) And (I_Y >= (4 * bSizeQ)) And (I_Z >= bSizeQ)) Then
+        ElseIf CurrentProduct = 1 And ((I_X >= (3 * bSizeQ)) And (I_Y >= (4 * bSizeQ)) And (I_Z >= bSizeQ)) Then 'AvailableTime > ((BatchSizeQads * UnitTime(2)) + SetupTime(2)) Then
             CurrentProduct = 2
             nBatchQ = nBatchQ + 1
             I_Q = I_Q + bSizeQ
@@ -79,7 +81,7 @@ Sub Assembly()
             I_Z = I_Z - bSizeQ
             AvailableTime = AvailableTime - ((bSizeQ * UnitTime(2)) + SetupTime(2))
         Else
-            GoTo PrintResults
+            GoTo PrintResults 'or Call Production???
         End If
     Loop
     
@@ -103,14 +105,53 @@ End Sub
 
 
 
-Sub ProductionTeam_1()
+Sub ProductionOfComponents(ByRef I_X As Long, ByRef I_Y As Long, ByRef I_Z As Long, ByRef time As Integer)
+    'Dim I_X As Long 'WIP inventory of X --- Get these as ByRef attributes from main sub???
+    'Dim I_Y As Long
+    'Dim I_Z As Long
     Dim bSizeX As Integer
     Dim bSizeY As Integer
     Dim bSizeZ As Integer
+    Dim SetupTime As Integer
+    Dim UnitTime(3) As Integer
+    Dim team As Integer '
+    
+    'I_X = 600
+    'I_Y = 500
+    'I_Z = 330
+    
+    SetupTime = 15
+    UnitTime(1) = 3 'unit time for X
+    UnitTime(2) = 2 'unit time dor Y
+    UnitTime(3) = 6 'unit time for Z
     
     bSizeX = 600
     bSizeY = 490
     bSizeZ = 160
+
+    Do While time >= ((bSizeX * UnitTime(1)) + SetupTime(1)) _
+        Or AvailableTime >= ((bSizeQ * UnitTime(2)) + SetupTime(2))
+            If (CurrentProduct = 0 Or CurrentProduct = 2) _
+            And ((I_X >= (5 * bSizeP)) And (I_Y >= (2 * bSizeP)) And (I_Z >= bSizeP)) Then 'AvailableTime > ((BatchSizePois * UnitTime(1)) + SetupTime(1)) Then
+                CurrentProduct = 1
+                nBatchP = nBatchP + 1
+                I_P = I_P + bSizeP
+                I_X = I_X - (5 * bSizeP)
+                I_Y = I_Y - (2 * bSizeP)
+                I_Z = I_Z - bSizeP
+                AvailableTime = AvailableTime - ((bSizeP * UnitTime(1)) + SetupTime(1))
+            ElseIf CurrentProduct = 1 And ((I_X >= (3 * bSizeQ)) And (I_Y >= (4 * bSizeQ)) And (I_Z >= bSizeQ)) Then 'AvailableTime > ((BatchSizeQads * UnitTime(2)) + SetupTime(2)) Then
+                CurrentProduct = 2
+                nBatchQ = nBatchQ + 1
+                I_Q = I_Q + bSizeQ
+                I_X = I_X - (3 * bSizeQ)
+                I_Y = I_Y - (4 * bSizeQ)
+                I_Z = I_Z - bSizeQ
+                AvailableTime = AvailableTime - ((bSizeQ * UnitTime(2)) + SetupTime(2))
+            Else
+                GoTo PrintResults 'or Call Production???
+            End If
+        Loop
 
 End Sub
 
@@ -120,12 +161,28 @@ Sub ProductionSystem_1()
     Dim I_X As Long
     Dim I_Y As Long
     Dim I_Z As Long
-    Dim I_P
-    Dim CurrentProduct As Integer
+    Dim k As Integer
+    Dim time As Integer 'Available weekly work time in minutes
+    Dim i As Integer
+    
+    'Prepare Worksheet...
     
     I_X = 600
     I_Y = 500
     I_Z = 330
     
+    time = 3900 '65 hours
     
+    k = InputBox("How many weeks should production be simulated for?", "Number of weeks", 500)
+    
+    Call Demand(k)
+    
+    For i = 1 To k
+    Call ProductionOfComponents(I_X, I_Y, I_Z)
+    'Call Assembly from main or from production sub
+    Next
+    
+    'compare demand with inventory for each week --- maybe do results in separate sub?
+    'call demand arrays from demand sub as ByVal?
+
 End Sub
