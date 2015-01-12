@@ -62,7 +62,7 @@ Sub Assembly()
     Do While AvailableTime >= ((bSizeP * UnitTime(1)) + SetupTime(1)) _
     Or AvailableTime >= ((bSizeQ * UnitTime(2)) + SetupTime(2))
         If (CurrentProduct = 0 Or CurrentProduct = 2) _
-        And ((I_X >= (5 * bSizeP)) And (I_Y >= (2 * bSizeP)) And (I_Z >= bSizeP)) Then 'AvailableTime > ((BatchSizePois * UnitTime(1)) + SetupTime(1)) Then
+        And ((I_X >= (5 * bSizeP)) And (I_Y >= (2 * bSizeP)) And (I_Z >= bSizeP)) Then 
             CurrentProduct = 1
             nBatchP = nBatchP + 1
             I_P = I_P + bSizeP
@@ -70,7 +70,7 @@ Sub Assembly()
             I_Y = I_Y - (2 * bSizeP)
             I_Z = I_Z - bSizeP
             AvailableTime = AvailableTime - ((bSizeP * UnitTime(1)) + SetupTime(1))
-        ElseIf CurrentProduct = 1 And ((I_X >= (3 * bSizeQ)) And (I_Y >= (4 * bSizeQ)) And (I_Z >= bSizeQ)) Then 'AvailableTime > ((BatchSizeQads * UnitTime(2)) + SetupTime(2)) Then
+        ElseIf CurrentProduct = 1 And ((I_X >= (3 * bSizeQ)) And (I_Y >= (4 * bSizeQ)) And (I_Z >= bSizeQ)) Then
             CurrentProduct = 2
             nBatchQ = nBatchQ + 1
             I_Q = I_Q + bSizeQ
