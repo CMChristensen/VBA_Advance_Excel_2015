@@ -2,9 +2,6 @@ Option Explicit
 Option Base 1
 
 Sub Production(ByRef I_X As Long, ByRef I_Y As Long, ByRef I_Z As Long, ByRef I_P As Long, ByRef I_Q As Long)
-    'Dim I_X As Long 'WIP inventory of X --- Get these as ByRef attributes from main sub???
-    'Dim I_Y As Long
-    'Dim I_Z As Long
     Dim bSizeX As Integer
     Dim bSizeY As Integer
     Dim bSizeZ As Integer
@@ -47,16 +44,6 @@ Sub Production(ByRef I_X As Long, ByRef I_Y As Long, ByRef I_Z As Long, ByRef I_
     team2 = 0
     
     time = 3900
-    
-'    'Starting production of components for team 1 and team 2
-'    team1 = 1 'last/currently produced component for team 1 was 1 = X
-'    I_X = I_X + bSizeX
-'    time = time - ((bSizeX * UnitTime(1)) + SetupTime)
-'    team2 = 2 'team 2 starting with production of Y
-'    I_Y = I_Y + bSizeY
-'    time = time - ((bSizeY * UnitTime(2)) + SetupTime)
-
-    
     
     'Starting loop, while there is time to produce at least one batch of components _
     or assemble one batch of products
