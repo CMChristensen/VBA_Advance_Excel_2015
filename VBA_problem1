@@ -1,0 +1,131 @@
+Option Explicit
+Option Base 1
+
+Sub Demand() 'generate demand schedule
+Dim w As Worksheet
+Dim i As Integer
+Dim k As Integer
+Dim DemandP() As Integer
+Dim DemandQ() As Integer
+
+k = InputBox("How many weeks should production be planned for?", "Number of weeks", 500)
+
+ReDim DemandP(k) 'redimension demand arrays to fit the number of weeks, k
+ReDim DemandQ(k)
+
+For i = 1 To k 'populate the arrays with randomly generated demand
+    DemandP(i) = WorksheetFunction.RandBetween(100, 160)
+    DemandQ(i) = Int(WorksheetFunction.NormInv(Rnd(), 180, 20))
+Next
+
+'Set w = ThisWorkbook.Worksheets.Add
+'w.Name = "Demand"
+
+End Sub
+
+
+Sub Assembly()
+    Dim I_X As Long 'WIP inventory of X --- Get these as ByRef attributes from production sub???
+    Dim I_Y As Long
+    Dim I_Z As Long
+    Dim I_P As Long 'Finished inventory of Pois
+    Dim I_Q As Long
+    Dim bSizeP As Integer 'Batch size of Pois
+    Dim bSizeQ As Integer
+    Dim nBatchP As Integer 'number of batches of Pois assembled
+    Dim nBatchQ As Integer 'number of batches of Qads assembled
+    Dim CurrentProduct As Integer 'initially 0, then 1=Pois and 2=Qads
+    Dim SetupTime(2) As Integer
+    Dim UnitTime(2) As Integer
+    Dim AvailableTime As Integer
+    
+    I_X = 600
+    I_Y = 500
+    I_Z = 330
+    I_P = 80
+    I_Q = 200
+    
+    bSizeP = 65
+    bSizeQ = 90
+    nBatchP = 0
+    nBatchQ = 0
+    
+    CurrentProduct = 0 'ready to start a new batch
+    
+    SetupTime(1) = 20 'setup time for Pois
+    SetupTime(2) = 25 'setup time for Qads
+    UnitTime(1) = 9 'unit time for Pois
+    UnitTime(2) = 12 'unit time dor Qads
+    
+    AvailableTime = 3900 'weekly worktime in minutes (65 hours)
+    
+    Do While AvailableTime >= ((bSizeP * UnitTime(1)) + SetupTime(1)) _
+    Or AvailableTime >= ((bSizeQ * UnitTime(2)) + SetupTime(2))
+        If (CurrentProduct = 0 Or CurrentProduct = 2) _
+        And ((I_X >= (5 * bSizeP)) And (I_Y >= (2 * bSizeP)) And (I_Z >= bSizeP)) Then 'AvailableTime > ((BatchSizePois * UnitTime(1)) + SetupTime(1)) Then
+            CurrentProduct = 1
+            nBatchP = nBatchP + 1
+            I_P = I_P + bSizeP
+            I_X = I_X - (5 * bSizeP)
+            I_Y = I_Y - (2 * bSizeP)
+            I_Z = I_Z - bSizeP
+            AvailableTime = AvailableTime - ((bSizeP * UnitTime(1)) + SetupTime(1))
+        ElseIf CurrentProduct = 1 And ((I_X >= (3 * bSizeQ)) And (I_Y >= (4 * bSizeQ)) And (I_Z >= bSizeQ)) Then 'AvailableTime > ((BatchSizeQads * UnitTime(2)) + SetupTime(2)) Then
+            CurrentProduct = 2
+            nBatchQ = nBatchQ + 1
+            I_Q = I_Q + bSizeQ
+            I_X = I_X - (3 * bSizeQ)
+            I_Y = I_Y - (4 * bSizeQ)
+            I_Z = I_Z - bSizeQ
+            AvailableTime = AvailableTime - ((bSizeQ * UnitTime(2)) + SetupTime(2))
+        Else
+            GoTo PrintResults
+        End If
+    Loop
+    
+PrintResults:
+    Cells(1, 1) = "Inv X"
+    Cells(1, 2) = I_X
+    Cells(2, 1) = "Inv Y"
+    Cells(2, 2) = I_Y
+    Cells(3, 1) = "Inv Z"
+    Cells(3, 2) = I_Z
+    Cells(4, 1) = "Inv Pois"
+    Cells(4, 2) = I_P
+    Cells(5, 1) = "Inv Qads"
+    Cells(5, 2) = I_Q
+    Cells(6, 1) = "Batches of Pois"
+    Cells(6, 2) = nBatchP
+    Cells(7, 1) = "Batches of Qads"
+    Cells(7, 2) = nBatchQ
+
+End Sub
+
+
+
+Sub ProductionTeam_1()
+    Dim bSizeX As Integer
+    Dim bSizeY As Integer
+    Dim bSizeZ As Integer
+    
+    bSizeX = 600
+    bSizeY = 490
+    bSizeZ = 160
+
+End Sub
+
+
+Sub ProductionSystem_1()
+    Dim w As Worksheet
+    Dim I_X As Long
+    Dim I_Y As Long
+    Dim I_Z As Long
+    Dim I_P
+    Dim CurrentProduct As Integer
+    
+    I_X = 600
+    I_Y = 500
+    I_Z = 330
+    
+    
+End Sub
