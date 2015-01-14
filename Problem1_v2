@@ -1,0 +1,111 @@
+Option Explicit
+Option Base 1
+
+Sub ComponentProduction()
+'ASSUMES THAT THERE WILL ALWAYS BE ENOUGH INVENTORY OF COMPONENTS TO MAINTAIN CONTINUOUS PRODUCTION OF POIS AND QADS, _
+ LIKELY VIOLATING THE GIVEN ASSUMPTION THAT "A BATCH IS ONLY READY FOR FURTHER PROCESSING/SALES AFTER A FULL BATCH IS COMPLETED"
+
+Dim Now As Integer              'current time in minutes
+Dim EndWeek As Integer          'minutes available within one work week (65 hours)
+Dim Team1_XYZ As Integer        'component currently/most recently produced by Team 1 (1 = X, 2 = Y, 3 = Z)
+Dim Team2_XYZ As Integer        'component currently/most recently produced by Team 1 (1 = X, 2 = Y, 3 = Z)
+Dim Machine_PQ As Integer       'product currently/most recently produced the machine (1 = Pois, 2 = Qads)
+Dim Team1_Ready As Integer      'indicates the time (in minutes) at which Team 1 is ready to produce a new batch
+Dim Team2_Ready As Integer      'indicates the time (in minutes) at which Team 2 is ready to produce a new batch
+Dim Machine_Ready As Integer    'indicates the time (in minutes) at which the machine is ready to assemble a new batch
+Dim BSX As Integer              'batch size for component X
+Dim BSY As Integer              'batch size for component Y
+Dim BSZ As Integer              'batch size for component Z
+Dim BSP As Integer              'batch size for product P, Pois
+Dim BSQ As Integer              'batch size for product Q, Qads
+Dim TimeX As Integer            'time required to setup and produce one batch of component X
+Dim TimeY As Integer            'time required to setup and produce one batch of component Y
+Dim TimeZ As Integer            'time required to setup and produce one batch of component Z
+Dim TimeP As Integer            'time required to setup and produce one batch of product P, Pois
+Dim TimeQ As Integer            'time required to setup and produce one batch of product Q, Qads
+Dim InvX As Long                'inventory of component X
+Dim InvY As Long                'inventory of component Y
+Dim InvZ As Long                'inventory of component Z
+Dim InvP As Long                'inventory of product P, Pois
+Dim InvQ As Long                'inventory of product Q, Qads
+
+Now = 0
+EndWeek = 3900
+
+Team1_XYZ = 0
+Team2_XYZ = 0
+Machine_PQ = 0
+
+Team1_Ready = 0
+Team2_Ready = 0
+Machine_Ready = 0
+
+BSX = 600
+BSY = 490
+BSZ = 160
+BSP = 65
+BSQ = 90
+
+TimeX = 3 * BSX + 15
+TimeY = 2 * BSY + 15
+TimeZ = 6 * BSZ + 15
+TimeP = 9 * BSP + 20
+TimeQ = 12 * BSQ + 25
+
+InvX = 600
+InvY = 500
+InvZ = 330
+InvP = 80
+InvQ = 200
+
+For Now = 0 To EndWeek
+    If Now = Team1_Ready Then
+        If Team1_XYZ = 0 Or 3 And (EndWeek - Team1_Ready) > TimeX Then
+            Team1_XYZ = 1
+            InvX = InvX + BSX
+            Team1_Ready = Team1_Ready + TimeX + 1
+        ElseIf Team1_XYZ = 1 And (EndWeek - Team1_Ready) > TimeY Then
+            Team1_XYZ = 2
+            InvY = InvY + BSY
+            Team1_Ready = Team1_Ready + TimeY + 1
+        ElseIf Team1_XYZ = 2 And (EndWeek - Team1_Ready) > TimeZ Then
+            Team1_XYZ = 3
+            InvZ = InvZ + BSZ
+            Team1_Ready = Team1_Ready + TimeZ + 1
+        'Else
+            'GoTo Team2
+        End If
+    End If
+    
+    If Now = Team2_Ready Then
+        If Team2_XYZ = 0 Or 1 And (EndWeek - Team2_Ready) > TimeY Then
+            Team2_XYZ = 2
+            InvY = InvY + BSY
+            Team2_Ready = Team2_Ready + TimeY + 1
+        ElseIf Team2_XYZ = 2 And (EndWeek - Team2_Ready) > TimeZ Then
+            Team2_XYZ = 3
+            InvZ = InvZ + BSZ
+            Team2_Ready = Team2_Ready + TimeZ + 1
+        ElseIf Team2_XYZ = 3 And (EndWeek - Team2_Ready) > TimeX Then
+            Team2_XYZ = 1
+            InvX = InvX + BSX
+            Team2_Ready = Team2_Ready + TimeX + 1
+        'Else
+            'GoTo Assembly
+        End If
+    End If
+    
+    If Now = Machine_Ready Then
+        If Machine_PQ = 0 Or 2 And (EndWeek - Machine_Ready) > TimeP Then
+            Machine_PQ = 1
+            InvP = InvP + BSP
+            Machine_Ready = Machine_Ready + TimeP + 1
+        ElseIf Machine_PQ = 1 And (EndWeek - Machine_Ready) > TimeQ Then
+            Machine_PQ = 2
+            InvQ = InvQ + BSQ
+            Machine_Ready = Machine_Ready + TimeQ + 1
+        End If
+
+Next
+
+End Sub
