@@ -2,9 +2,6 @@ Option Explicit
 Option Base 1
 
 Sub ComponentProduction()
-'ASSUMES THAT THERE WILL ALWAYS BE ENOUGH INVENTORY OF COMPONENTS TO MAINTAIN CONTINUOUS PRODUCTION OF POIS AND QADS, _
- LIKELY VIOLATING THE GIVEN ASSUMPTION THAT "A BATCH IS ONLY READY FOR FURTHER PROCESSING/SALES AFTER A FULL BATCH IS COMPLETED"
-
 Dim Now As Integer              'current time in minutes
 Dim EndWeek As Integer          'minutes available within one work week (65 hours)
 Dim Team1_XYZ As Integer        'component currently/most recently produced by Team 1 (1 = X, 2 = Y, 3 = Z)
