@@ -1,7 +1,9 @@
 Option Explicit
 Option Base 1
 
-Sub ComponentProduction()
+Sub Production(ByRef InvX As Long, ByRef InvY As Long, _
+ByRef InvZ As Long, ByRef InvP As Long, ByRef InvQ As Long)
+
 Dim Now As Integer              'current time in minutes
 Dim EndWeek As Integer          'minutes available within one work week (65 hours)
 Dim Team1_XYZ As Integer        'component currently/most recently produced by Team 1 (1 = X, 2 = Y, 3 = Z)
@@ -20,11 +22,13 @@ Dim TimeY As Integer            'time required to setup and produce one batch of
 Dim TimeZ As Integer            'time required to setup and produce one batch of component Z
 Dim TimeP As Integer            'time required to setup and produce one batch of product P, Pois
 Dim TimeQ As Integer            'time required to setup and produce one batch of product Q, Qads
-Dim InvX As Long                'inventory of component X
-Dim InvY As Long                'inventory of component Y
-Dim InvZ As Long                'inventory of component Z
-Dim InvP As Long                'inventory of product P, Pois
-Dim InvQ As Long                'inventory of product Q, Qads
+Dim PX As Integer               'amount of component X required to produce a batch of Pois
+Dim PY As Integer               'amount of component Y required to produce a batch of Pois
+Dim PZ As Integer               'amount of component Z required to produce a batch of Pois
+Dim QX As Integer               'amount of component X required to produce a batch of Qads
+Dim QY As Integer               'amount of component Y required to produce a batch of Qads
+Dim QZ As Integer               'amount of component Z required to produce a batch of Qads
+
 
 Now = 0
 EndWeek = 3900
@@ -49,15 +53,18 @@ TimeZ = 6 * BSZ + 15
 TimeP = 9 * BSP + 20
 TimeQ = 12 * BSQ + 25
 
-InvX = 600
-InvY = 500
-InvZ = 330
-InvP = 80
-InvQ = 200
+PX = 5 * BSP
+PY = 2 * BSP
+PZ = 1 * BSP
+QX = 3 * BSQ
+QY = 4 * BSQ
+QZ = 1 * BSQ
+
+
 
 For Now = 0 To EndWeek
-    If Now = Team1_Ready Then
-        If Team1_XYZ = 0 Or 3 And (EndWeek - Team1_Ready) > TimeX Then
+    If Now = Team1_Ready Then   'If Team 1 is ready to start producing a new batch then...
+        If Team1_XYZ = 0 Or 3 And (EndWeek - Team1_Ready) > TimeX Then 'If Team 1 last produced component Z and there is enough time to produce a batch of X then start production
             Team1_XYZ = 1
             InvX = InvX + BSX
             Team1_Ready = Team1_Ready + TimeX + 1
@@ -93,16 +100,93 @@ For Now = 0 To EndWeek
     End If
     
     If Now = Machine_Ready Then
-        If Machine_PQ = 0 Or 2 And (EndWeek - Machine_Ready) > TimeP Then
+        If Machine_PQ = 0 Or 2 And (EndWeek - Machine_Ready) > TimeP And _
+        InvX > PX And InvY > PY And InvZ > PZ Then  'If there is enough time and components to produce a batch of P, then start production
             Machine_PQ = 1
             InvP = InvP + BSP
+            InvX = InvX - PX
+            InvY = InvY - PY
+            InvZ = InvZ - PZ
             Machine_Ready = Machine_Ready + TimeP + 1
-        ElseIf Machine_PQ = 1 And (EndWeek - Machine_Ready) > TimeQ Then
+        ElseIf Machine_PQ = 1 And (EndWeek - Machine_Ready) > TimeQ And _
+        InvX > QX And InvY > QY And InvZ > QZ Then
             Machine_PQ = 2
             InvQ = InvQ + BSQ
+            InvX = InvX - QX
+            InvY = InvY - QY
+            InvZ = InvZ - QZ
             Machine_Ready = Machine_Ready + TimeQ + 1
         End If
-
+    End If
 Next
+End Sub
 
+
+
+Sub Simulation(ByVal k As Integer)
+    Dim InvX As Long                'weekly inventory of component X
+    Dim InvY As Long                'weekly inventory of component Y
+    Dim InvZ As Long                'weekly inventory of component Z
+    Dim InvP As Long                'weekly inventory of product P, Pois
+    Dim InvQ As Long                'weekly inventory of product Q, Qads
+    Dim aInvX() As Long            'inventory of X for weeks 1 to k
+    Dim aInvY() As Long
+    Dim aInvZ() As Long
+    Dim aInvP() As Long
+    Dim aInvQ() As Long
+    Dim DemandP() As Integer
+    Dim DemandQ() As Integer
+    Dim i As Integer
+    Dim j As Integer
+    Dim m As Integer
+    
+    ReDim DemandP(k) 'redimension demand arrays to fit the number of weeks, k
+    ReDim DemandQ(k)
+
+    Randomize
+
+    For i = 1 To k 'populate the arrays with the randomly generated demand schedule
+        DemandP(i) = WorksheetFunction.RandBetween(100, 160)
+        DemandQ(i) = Int(WorksheetFunction.NormInv(Rnd(), 180, 20))
+    Next
+
+    InvX = 600
+    InvY = 500
+    InvZ = 330
+    InvP = 80
+    InvQ = 200
+    
+    ReDim aInvX(k)
+    ReDim aInvY(k)
+    ReDim aInvZ(k)
+    ReDim aInvP(k)
+    ReDim aInvQ(k)
+    
+    For j = 1 To k
+        Call Production(InvX, InvY, InvZ, InvP, InvQ)
+        InvP = InvP - DemandP(j)
+        InvQ = InvQ - DemandQ(j)
+        aInvX(j) = InvX
+        aInvY(j) = InvY
+        aInvZ(j) = InvZ
+        aInvP(j) = InvP
+        aInvQ(j) = InvQ
+    Next
+    
+'    For m = 1 To k
+'        Cells(m + 20, 1) = DemandP(m)
+'        Cells(m + 20, 2) = aInvP(m)
+'        Cells(m + 20, 3) = DemandQ(m)
+'        Cells(m + 20, 4) = aInvQ(m)
+'    Next
+End Sub
+
+
+Sub Main()
+    Dim k As Integer
+
+    k = InputBox("How many weeks should production be simulated for?", "Number of weeks", 500)
+    
+    Call Simulation(k)
+    
 End Sub
